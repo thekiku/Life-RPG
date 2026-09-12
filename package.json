@@ -1,0 +1,21 @@
+{
+  "name": "questlog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "QUESTLOG — a life RPG that runs on a little fake handheld console. Quests, not chores.",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace server",
+    "dev:client": "npm run dev --workspace client",
+    "dev": "npm-run-all --parallel dev:server dev:client",
+    "build": "npm run build --workspace client",
+    "start": "npm run start --workspace server",
+    "seed": "npm run seed --workspace server"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
