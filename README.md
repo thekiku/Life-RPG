@@ -1,96 +1,80 @@
-# 🎮 QUESTLOG — Handheld Life RPG
+# QUESTLOG
 
-A full-stack retro handheld console Life RPG app featuring server-authoritative XP/leveling/streaks, dynamic Web Audio synth sound effects, attribute progression, item shop, and pixel-art UI.
+full-stack retro handheld console life rpg with server-side xp/leveling, streaks, web audio synth, item shop, and pixel art ui
 
-## 🌟 Features
+## features
 
-- **Server-Authoritative RPG Engine** — XP, levels, coins, attribute experience calculated server-side
-- **Streak System** — 9-day completion history with visual matrix
-- **Four Attributes** — Intellect, Strength, Craft, Spirit (10 tiers each)
-- **Item Shop** — Purchase and equip relics with earned coins
-- **Retro Console UI** — CRT scanlines, power LED, D-pad navigation
-- **Web Audio SFX** — All sounds synthesized in-browser (no audio files)
+- server-authoritative rpg engine - xp, levels, coins calculated server-side
+- streak system - 9 day completion history
+- four attributes - intellect, strength, craft, spirit (10 tiers each)
+- item shop - buy and equip items with earned coins
+- retro console ui - crt scanlines, power led, d-pad navigation
+- web audio sfx - all sounds synthesized in-browser
 
-## 🚀 Quick Start
+## quick start
 
 ```bash
-# Install dependencies
 npm install
-
-# Seed demo data
 npm run seed
-
-# Development (frontend :5173, backend :4000)
 npm run dev
-
-# Production (serves on :4000)
-npm run build
-NODE_ENV=production npm start
 ```
 
-**Demo Login:** `hero` / `demo1234`
+demo login: hero / demo1234
 
-## 📦 Tech Stack
+## tech stack
 
-- **Frontend:** React 18, Vite, Web Audio API, Canvas Confetti
-- **Backend:** Node.js 24+, Express, better-sqlite3
-- **Auth:** JWT cookies, BCrypt
-- **Deployment:** Vercel-ready
+react 18, vite, web audio api, node.js, express, better-sqlite3, jwt, bcrypt
 
-## 🚢 Deploy to Vercel
+## deploy
 
 ```bash
 vercel login
 vercel --prod
 ```
 
-Add environment variable in Vercel dashboard: `SESSION_SECRET=your-random-secret`
+set SESSION_SECRET env var in vercel dashboard
 
-## 🎮 Gameplay
+## gameplay
 
-1. Create quests with custom XP rewards (5-500)
-2. Complete quests to earn XP and Gold Coins
-3. Level up triggers confetti + synth fanfare
-4. Buy items in shop with coins
-5. Build attribute progression across 4 stats
+create quests with custom xp rewards, complete them to earn xp and coins, level up for confetti and synth fanfare, buy items in the shop
 
-## 🎨 Sound Effects (Web Audio API)
+## sound effects
 
-- **Click:** 200Hz sine (50ms)
-- **Complete:** Rising chime (220→330→440Hz)
-- **Level Up:** Fanfare arpeggio
-- **Buy:** Cash register ka-ching
-- **Error:** 100Hz buzzer
+click: 200hz sine (50ms)
+complete: rising chime (220->330->440hz)
+level up: fanfare arpeggio
+buy: cash register ka-ching
+error: 100hz buzzer
 
-## 📁 Structure
+## structure
 
 ```
 questlog/
-├── api/index.js          # Vercel serverless entry
-├── client/               # React frontend
+├── api/index.js
+├── client/
 │   ├── src/
-│   │   ├── components/   # HeaderHUD, Modals
-│   │   ├── pages/        # QuestLog, Character, Shop
-│   │   └── audio.js      # Synth engine
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── audio.js
 │   └── vite.config.js
-├── server/               # Express backend
+├── server/
 │   ├── src/
-│   │   ├── routes/       # API endpoints
-│   │   ├── db.js         # SQLite with async wrapper
-│   │   └── engine.js     # XP/level math
+│   │   ├── routes/
+│   │   ├── db.js
+│   │   └── engine.js
 │   └── package.json
-└── vercel.json           # Deployment config
+└── vercel.json
 ```
 
-## 🔧 API Endpoints
+## api endpoints
 
-- `POST /api/auth/signup|login|logout`
-- `GET /api/auth/me`
-- `GET|POST|PUT|DELETE /api/tasks`
-- `POST /api/tasks/:id/toggle`
-- `GET /api/stats`
-- `POST /api/stats/shop/buy|equip`
+- POST /api/auth/signup|login|logout
+- GET /api/auth/me
+- GET|POST|PUT|DELETE /api/tasks
+- POST /api/tasks/:id/toggle
+- GET /api/stats
+- POST /api/stats/shop/buy|equip
 
-## 📝 License
+## license
 
-MIT — Built with ❤️ and synthesized bleeps.
+MIT

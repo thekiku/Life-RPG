@@ -63,7 +63,7 @@ export default function Shop({ stats, onRefreshStats }) {
 
         <div className="hud-coins" style={{ fontSize: '0.85rem' }}>
           <span>YOUR BALANCE:</span>
-          <span>🪙 {character?.coins || 0} COINS</span>
+          <span>{character?.coins || 0} COINS</span>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ export default function Shop({ stats, onRefreshStats }) {
                   onClick={() => handleBuy(item.slug)}
                   disabled={loadingSlug === item.slug || (character?.coins || 0) < item.price}
                 >
-                  BUY FOR 🪙 {item.price}
+                  BUY FOR {item.price} COINS
                 </button>
               )}
             </div>

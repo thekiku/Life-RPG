@@ -7,10 +7,10 @@ export default function Character({ stats }) {
   const equippedItems = shop?.filter((i) => i.equipped) || [];
 
   const attrList = [
-    { key: 'int', name: 'INTELLECT', val: character.attr_int || 0, color: 'var(--attr-int)', icon: '🧠', info: attributes?.int },
-    { key: 'str', name: 'STRENGTH', val: character.attr_str || 0, color: 'var(--attr-str)', icon: '⚔️', info: attributes?.str },
-    { key: 'craft', name: 'CRAFT', val: character.attr_craft || 0, color: 'var(--attr-craft)', icon: '⚒️', info: attributes?.craft },
-    { key: 'spirit', name: 'SPIRIT', val: character.attr_spirit || 0, color: 'var(--attr-spirit)', icon: '✨', info: attributes?.spirit },
+    { key: 'int', name: 'INTELLECT', val: character.attr_int || 0, color: 'var(--attr-int)', icon: 'INT', info: attributes?.int },
+    { key: 'str', name: 'STRENGTH', val: character.attr_str || 0, color: 'var(--attr-str)', icon: 'STR', info: attributes?.str },
+    { key: 'craft', name: 'CRAFT', val: character.attr_craft || 0, color: 'var(--attr-craft)', icon: 'CRF', info: attributes?.craft },
+    { key: 'spirit', name: 'SPIRIT', val: character.attr_spirit || 0, color: 'var(--attr-spirit)', icon: 'SPT', info: attributes?.spirit },
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function Character({ stats }) {
         <div>
           <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '0.6rem', color: '#718096' }}>COINS</div>
           <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '0.95rem', color: 'var(--accent-amber)', marginTop: '4px' }}>
-            🪙 {character.coins} Gold
+            {character.coins} Gold
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function Character({ stats }) {
           {equippedItems.map((item) => (
             <div key={item.slug} className="quest-card" style={{ borderColor: item.accent }}>
               <div style={{ fontFamily: 'var(--font-pixel)', fontSize: '0.75rem', color: item.accent }}>
-                ✨ {item.name}
+                {item.name}
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.95rem', color: '#a0aec0' }}>
                 {item.description}

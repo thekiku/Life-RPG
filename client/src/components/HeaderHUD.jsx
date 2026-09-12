@@ -23,8 +23,8 @@ export default function HeaderHUD({ character }) {
       </div>
 
       <div className="hud-coins" title="Gold Coins earned from completing quests">
-        <span>🪙</span>
-        <span>{character.coins} COINS</span>
+        <span style={{ fontFamily: 'var(--font-pixel)', fontSize: '0.8rem' }}>COINS:</span>
+        <span>{character.coins}</span>
       </div>
     </header>
   );

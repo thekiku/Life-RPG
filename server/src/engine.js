@@ -1,22 +1,19 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// QUESTLOG engine — this lives on the server so nobody can cheat their stats.
-// All XP/level/streak math is computed here, never on the client.
-// ─────────────────────────────────────────────────────────────────────────────
+// rpg engine - server side so nobody can cheat their stats
+// xp/level/streak math computed here, not on client
 
-// Every 5 levels, XP-to-next-level grows by 1.4 so the grind keeps growing.
+// every 5 levels, xp needed grows by 1.4x
 export function xpForLevel(level) {
   if (level < 1) level = 1;
   return Math.floor(100 * Math.pow(1.4, Math.floor((level - 1) / 5)));
 }
 
-// How much stat XP a quest grants, based on its reward amount.
+// how much attr xp a quest gives based on reward
 export function attrXpFromReward(reward) {
   return Math.max(4, Math.min(40, Math.floor(reward / 5)));
 }
 
-// A character who gains XP may climb several levels, gaining HP (and then some
-// bonus cooldown HP) each level. Returns the new state plus which levels were
-// crossed so the UI can celebrate every single one.
+// character gains xp and may level up multiple times
+// returns new state plus which levels were crossed
 export function applyXp(character, amount) {
   let { xp, level, max_hp: maxHp } = character;
   xp += amount;
@@ -39,16 +36,14 @@ export function applyXp(character, amount) {
     xp,
     level,
     gainedMaxHp,
-    // Heal to full whenever anything levels the player up — an instant reward
-    // for finishing quests.
+    // heal to full when leveling up - instant reward
     hp: leveledUpTo !== null ? maxHp : Math.min(maxHp, (character.hp ?? maxHp) + Math.max(2, Math.floor(amount / 10))),
     leveledUpFrom,
     leveledUpTo,
   };
 }
 
-// Attribute constellation → level table. Ten small tiers so stats feel like
-// they are evolving without exploding the UI.
+// attribute level tiers - ten small tiers for progression
 const ATTR_TIERS = [
   { level: 1, need: 0 },
   { level: 2, need: 60 },
@@ -80,8 +75,7 @@ export function attrTierProgress(totalXp) {
   return { level: tier, pct: Math.max(0, Math.min(100, pct)), label: `ATTR TIER ${tier}` };
 }
 
-// Total tier count is tracked per attribute over all time so progress can be
-// shown per stat rather than just "you raised this task".
+// total tier count tracked per attr over time
 export async function attrTotals(db, userId) {
   const rows = await db.all(
     `SELECT attr, SUM(reward) AS total
@@ -104,8 +98,7 @@ export function attrDisplayName(attr) {
 const TYPE_TO_ATTR = { int: 'INTELLECT', str: 'STRENGTH', craft: 'CRAFT', spirit: 'SPIRIT' };
 export { TYPE_TO_ATTR };
 
-// Lodestone fates: a curated set of item presets used to populate the shop
-// with personality and to seed fresh adventurers with flavor.
+// item catalog for the shop
 export const SHOP_CATALOG = [
   { slug: 'talisman', name: 'Pocket Talisman', description: 'A lumpy hunk of glass. Protects against forgetting why you started.', price: 120, kind: 'item', accent: '#ffd23f' },
   { slug: 'mug', name: 'Tactical Coffee Mug', description: 'Holds liquid motivation. Releases caffeine particles when filled.', price: 200, kind: 'item', accent: '#ff9f1c' },
