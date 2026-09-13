@@ -89,7 +89,7 @@ type PlayerState = {
   sound_enabled: boolean;
 };
 
-type View = "quests" | "skills" | "bazaar" | "raids" | "telemetry" | "profile";
+type View = "quests" | "focus" | "skills" | "bazaar" | "raids" | "telemetry" | "profile";
 type Filter = "active" | "cleared" | "all";
 type SortMode = "high" | "newest" | "reward";
 type ShopTab = "boosts" | "relics" | "themes";
@@ -328,6 +328,25 @@ export default function Home() {
   const [bossHit, setBossHit] = useState(false);
   const [hudPulse, setHudPulse] = useState(false);
 
+  const [pomodoroMode, setPomodoroMode] = useState<"focus" | "short" | "long">("focus");
+  const [pomodoroSeconds, setPomodoroSeconds] = useState(25 * 60);
+  const [pomodoroRunning, setPomodoroRunning] = useState(false);
+  const [pomodoroSessions, setPomodoroSessions] = useState(0);
+
+  const pomodoroDurations = {
+    focus: 25 * 60,
+    short: 5 * 60,
+    long: 15 * 60,
+  } as const;
+  const pomodoroDuration = pomodoroDurations[pomodoroMode];
+  const pomodoroProgress = Math.min(
+    100,
+    Math.max(0, ((pomodoroDuration - pomodoroSeconds) / pomodoroDuration) * 100)
+  );
+  const pomodoroDisplay = `${String(Math.floor(pomodoroSeconds / 60)).padStart(2, "0")}:${String(
+    pomodoroSeconds % 60
+  ).padStart(2, "0")}`;
+
   const currentWeek = weekKey();
   const level = profile ? levelFromXp(profile.total_xp) : { level: 1, current: 0, needed: 100 };
   const xpPct = Math.min(100, Math.round((level.current / level.needed) * 100));
@@ -366,8 +385,55 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!pomodoroRunning) return;
+
+    const id = window.setInterval(() => {
+      setPomodoroSeconds(previous => {
+        if (previous <= 1) {
+          setPomodoroRunning(false);
+
+          if (pomodoroMode === "focus") {
+            setPomodoroSessions(count => count + 1);
+            setToast("FOCUS QUEST COMPLETE // TAKE A BREAK");
+          } else {
+            setToast("BREAK COMPLETE // READY TO ASCEND");
+          }
+
+          window.setTimeout(() => setToast(""), 2600);
+          return 0;
+        }
+
+        return previous - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(id);
+  }, [pomodoroRunning, pomodoroMode]);
+
+  useEffect(() => {
     document.documentElement.dataset.theme = state?.equipped_theme ?? "farmstead";
   }, [state?.equipped_theme]);
+
+  function changePomodoroMode(mode: "focus" | "short" | "long") {
+    setPomodoroRunning(false);
+    setPomodoroMode(mode);
+    setPomodoroSeconds(pomodoroDurations[mode]);
+    playSound("click");
+  }
+
+  function resetPomodoro() {
+    setPomodoroRunning(false);
+    setPomodoroSeconds(pomodoroDurations[pomodoroMode]);
+    playSound("click");
+  }
+
+  function togglePomodoro() {
+    if (pomodoroSeconds === 0) {
+      setPomodoroSeconds(pomodoroDurations[pomodoroMode]);
+    }
+    setPomodoroRunning(value => !value);
+    playSound("click");
+  }
 
   function getAudioContext() {
     if (typeof window === "undefined") return null;
@@ -923,6 +989,7 @@ export default function Home() {
 
   const nav = [
     { key: "quests" as View, label: "QUEST MATRIX", icon: Radio },
+    { key: "focus" as View, label: "FOCUS CLOCK", icon: History },
     { key: "skills" as View, label: "SKILL NEXUS", icon: Boxes },
     { key: "bazaar" as View, label: "BAZAAR & VAULT", icon: ShoppingBag },
     { key: "raids" as View, label: "SQUAD RAIDS", icon: Users },
@@ -1025,6 +1092,94 @@ export default function Home() {
               <form className="quest-forge panel" onSubmit={addQuest}><input ref={questInput} value={title} onChange={event => setTitle(event.target.value)} placeholder="Directive objective..."/><select value={difficulty} onChange={event => setDifficulty(event.target.value as "easy" | "medium" | "hard")}><option value="easy">C-RANK (+25 XP)</option><option value="medium">B-RANK (+60 XP)</option><option value="hard">S-RANK (+120 XP)</option></select><select value={attribute} onChange={event => setAttribute(event.target.value as Attribute)}><option value="intellect">INTELLECT</option><option value="strength">STRENGTH</option><option value="discipline">DISCIPLINE</option><option value="creativity">CREATIVITY</option></select><button><Plus/>ACCEPT QUEST</button></form>
               <section className="quests">{filteredTasks.map(task => { const Icon = attributeIcons[task.attribute]; const reward = rewardForDifficulty(task.difficulty); const rank = task.difficulty === "hard" ? "S" : task.difficulty === "medium" ? "B" : "C"; return <article className={`quest panel ${task.completed ? "done" : ""}`} key={task.id}><div className={`rank ${task.difficulty}`}>{rank}-RANK</div><div className="quest-copy"><small>DIR ID: {task.id.slice(0, 8).toUpperCase()} // {task.attribute.toUpperCase()}</small><h3>{task.title}</h3><div><span><Zap/>+{reward.xp}{state?.xp_boost_uses ? " ×1.5" : ""} XP</span><span><Coins/>+{reward.gold}{state?.gold_boost_uses ? " ×1.5" : ""} G</span><span><Icon/>{task.attribute.toUpperCase()}</span></div></div>{!task.completed ? <button className="complete" onMouseEnter={() => playSound("hover")} onClick={() => completeQuest(task)}><CheckCircle2/>COMPLETE QUEST</button> : <span className="cleared"><Check/>VANQUISHED</span>}<button className="trash" aria-label="Delete quest" onClick={() => deleteQuest(task.id)}><Trash2/></button></article>; })}{filteredTasks.length === 0 && <div className="empty panel">NO DIRECTIVES FOUND IN CURRENT MATRIX</div>}</section>
             </section>
+          </section>}
+
+          {view === "focus" && <section className="single-view focus-view">
+            <div className="view-heading">
+              <div>
+                <small>PRODUCTIVITY MODULE // POMODORO</small>
+                <h1>Focus Clock</h1>
+                <p>Run a focused work sprint, recover, then return stronger. One cycle at a time.</p>
+              </div>
+              <div className="focus-session-chip">
+                <span>🍅</span>
+                <div><small>FOCUS SESSIONS</small><b>{pomodoroSessions}</b></div>
+              </div>
+            </div>
+
+            <div className="focus-layout">
+              <article className="focus-timer panel">
+                <div className="focus-presets">
+                  <button
+                    className={pomodoroMode === "focus" ? "active" : ""}
+                    onClick={() => changePomodoroMode("focus")}
+                  >
+                    FOCUS · 25
+                  </button>
+                  <button
+                    className={pomodoroMode === "short" ? "active" : ""}
+                    onClick={() => changePomodoroMode("short")}
+                  >
+                    SHORT BREAK · 5
+                  </button>
+                  <button
+                    className={pomodoroMode === "long" ? "active" : ""}
+                    onClick={() => changePomodoroMode("long")}
+                  >
+                    LONG BREAK · 15
+                  </button>
+                </div>
+
+                <div
+                  className={`pomodoro-ring ${pomodoroRunning ? "running" : ""}`}
+                  style={{ ["--focus-progress" as string]: `${pomodoroProgress * 3.6}deg` } as React.CSSProperties}
+                >
+                  <div className="pomodoro-core">
+                    <small>{pomodoroMode === "focus" ? "DEEP FOCUS" : pomodoroMode === "short" ? "QUICK RECOVERY" : "FULL RECOVERY"}</small>
+                    <strong>{pomodoroDisplay}</strong>
+                    <span>{pomodoroRunning ? "SESSION ACTIVE" : pomodoroSeconds === 0 ? "CYCLE COMPLETE" : "READY"}</span>
+                  </div>
+                </div>
+
+                <div className="focus-controls">
+                  <button className="focus-primary" onClick={togglePomodoro}>
+                    {pomodoroRunning ? "PAUSE SESSION" : pomodoroSeconds === 0 ? "START NEXT CYCLE" : "START FOCUS"}
+                  </button>
+                  <button onClick={resetPomodoro}>RESET</button>
+                </div>
+
+                <div className="focus-cycle">
+                  <span>CYCLE TARGET</span>
+                  <div>
+                    {[0, 1, 2, 3].map(index => (
+                      <i key={index} className={pomodoroSessions % 4 > index ? "complete" : ""} />
+                    ))}
+                  </div>
+                  <b>{pomodoroSessions % 4}/4</b>
+                </div>
+              </article>
+
+              <aside className="focus-side">
+                <article className="panel focus-guide">
+                  <small>FOCUS PROTOCOL</small>
+                  <h2>25 → 5 → repeat</h2>
+                  <p>Work on one quest for 25 minutes. Take a five-minute recovery break. After four focus sessions, use the 15-minute long break.</p>
+                  <div className="focus-rules">
+                    <span><b>01</b> Pick one quest only.</span>
+                    <span><b>02</b> Silence distractions.</span>
+                    <span><b>03</b> Do not switch tasks mid-cycle.</span>
+                    <span><b>04</b> Recover when the timer ends.</span>
+                  </div>
+                </article>
+
+                <article className="panel focus-streak-card">
+                  <small>TODAY'S MOMENTUM</small>
+                  <div className="focus-stat-row"><span>QUESTS CLEARED</span><b>{todayClears}</b></div>
+                  <div className="focus-stat-row"><span>FOCUS CYCLES</span><b>{pomodoroSessions}</b></div>
+                  <div className="focus-stat-row"><span>ACTIVE STREAK</span><b>{profile?.streak ?? 0} DAYS</b></div>
+                </article>
+              </aside>
+            </div>
           </section>}
 
           {view === "skills" && <section className="single-view"><div className="view-heading"><div><small>SKILL NEXUS</small><h1>Synapse Attributes</h1><p>Every completed directive permanently upgrades the attribute tied to it.</p></div><button onClick={() => quickForge()}><Plus/>FORGE NEW QUEST</button></div><div className="skill-grid">{(["intellect","strength","discipline","creativity"] as Attribute[]).map(attr => { const Icon = attributeIcons[attr]; const value = profile?.[attr] ?? 1; return <article className={`skill-card panel skill-${attr}`} key={attr}><div className="skill-icon"><Icon/></div><small>{attr.toUpperCase()} PROTOCOL</small><h2>{value}</h2><div className="skill-progress"><i style={{ width: `${Math.min(100, value)}%` }}/></div><p>{attr === "intellect" ? "Study, coding, research, deep work and problem solving." : attr === "strength" ? "Training, movement, recovery and physical challenges." : attr === "discipline" ? "Consistency, routines, difficult habits and focused execution." : "Design, writing, ideation and creative production."}</p><button onClick={() => quickForge(attr)}>FORGE {attr.toUpperCase()} QUEST<ChevronRight/></button></article>; })}</div></section>}
