@@ -308,8 +308,9 @@ export default function Home() {
     if (kind === "raid") { tone(220, 0, 0.1, "square", 0.03); tone(440, 0.08, 0.12, "square", 0.04); tone(880, 0.18, 0.2, "triangle", 0.05); }
   }
 
-  function startAmbient(force = false) {
-    if (!force && !state?.sound_enabled) return;
+  function startAmbient(force: boolean | unknown = false) {
+    const isForce = typeof force === "boolean" ? force : false;
+    if (!isForce && !state?.sound_enabled) return;
     const ctx = getAudioContext();
     if (!ctx || ambientOsc.current) return;
     if (ctx.state === "suspended") void ctx.resume();
