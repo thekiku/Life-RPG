@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "../lib/supabase/client";
@@ -122,7 +122,7 @@ const starterState: Omit<PlayerState, "user_id"> = {
   boss_week: null,
   boss_claimed_week: null,
   raid_claim_date: null,
-  equipped_theme: "void",
+  equipped_theme: "farmstead",
   sound_enabled: true,
 };
 
@@ -268,7 +268,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = state?.equipped_theme ?? "void";
+    document.documentElement.dataset.theme = state?.equipped_theme ?? "farmstead";
   }, [state?.equipped_theme]);
 
   function getAudioContext() {
@@ -732,28 +732,93 @@ export default function Home() {
 
   if (!uid) {
     return (
-      <main className="auth-page" onClick={startAmbient}>
-        <div className="stars"/>
-        <div className="scanlines"/>
-        <section className="auth-left">
-          <div className="auth-brand"><Hexagon/><span><small>CYBER RPG SYSTEM</small><b>LIFE RPG</b></span></div>
-          <div>
-            <small>PRODUCTIVITY // ASCENDED</small>
-            <h1>Become the person<br/>your stats describe.</h1>
-            <p>Real work becomes quests. Progress becomes XP. Consistency becomes power.</p>
+      <main className="auth-page farm-login" onClick={startAmbient}>
+        <div className="farm-sky" aria-hidden="true">
+          <div className="farm-sun" />
+          <div className="farm-cloud farm-cloud-one" />
+          <div className="farm-cloud farm-cloud-two" />
+          <div className="farm-hill farm-hill-back" />
+          <div className="farm-hill farm-hill-front" />
+          <div className="farm-field-lines" />
+          <div className="farm-fence" />
+        </div>
+
+        <section className="auth-left farm-auth-left">
+          <div className="auth-brand farm-auth-brand">
+            <div className="farm-logo" aria-hidden="true">🌱</div>
+            <span><small>COZY LIFE RPG</small><b>LIFE RPG</b></span>
           </div>
-          <div className="auth-modules"><span>QUEST MATRIX</span><span>SKILL NEXUS</span><span>CALAMITY BOSS</span></div>
+
+          <div className="farm-hero-copy">
+            <div className="farm-season-badge">☀ SPRING · DAY 1</div>
+            <small>YOUR LITTLE CORNER OF PROGRESS</small>
+            <h1>Grow your life,<br/>one quest at a time.</h1>
+            <p>
+              Turn studying, workouts, chores and habits into cozy daily quests.
+              Earn XP, collect gold, build your stats and watch your journey grow.
+            </p>
+          </div>
+
+          <div className="auth-modules farm-auth-modules">
+            <span><b>🌱</b> DAILY QUESTS</span>
+            <span><b>⭐</b> LEVEL & XP</span>
+            <span><b>🪙</b> FARM GOLD</span>
+          </div>
         </section>
-        <section className="auth-card">
-          <small>{authMode === "login" ? "RETURNING OPERATIVE" : "NEW OPERATIVE"}</small>
-          <h2>{authMode === "login" ? "Access neural link" : "Create neural identity"}</h2>
+
+        <section className="auth-card farm-auth-card">
+          <div className="journal-pin" aria-hidden="true">🍃</div>
+          <small>{authMode === "login" ? "WELCOME BACK, FARMER" : "A NEW JOURNEY BEGINS"}</small>
+          <h2>{authMode === "login" ? "Open your journal" : "Create your farm journal"}</h2>
+          <p className="farm-auth-intro">
+            {authMode === "login"
+              ? "The valley is waiting. Pick up where you left off."
+              : "Create your profile and turn today's real-life goals into quests."}
+          </p>
+
           <form onSubmit={handleAuth}>
-            <label>Email</label><input value={email} onChange={event => setEmail(event.target.value)} type="email"/>
-            <label>Password</label><input value={password} onChange={event => setPassword(event.target.value)} type="password"/>
-            <button>{authMode === "login" ? "CONNECT" : "INITIALIZE"}</button>
+            <label>Email address</label>
+            <input
+              value={email}
+              onChange={event => setEmail(event.target.value)}
+              type="email"
+              placeholder="farmer@example.com"
+              autoComplete="email"
+            />
+
+            <label>Password</label>
+            <input
+              value={password}
+              onChange={event => setPassword(event.target.value)}
+              type="password"
+              placeholder="••••••••"
+              autoComplete={authMode === "login" ? "current-password" : "new-password"}
+            />
+
+            <button className="farm-auth-submit">
+              {authMode === "login" ? "🌤 START THE DAY" : "🌱 BEGIN MY JOURNEY"}
+            </button>
           </form>
-          {authMessage && <p>{authMessage}</p>}
-          <button className="link" onClick={() => setAuthMode(authMode === "login" ? "signup" : "login")}>{authMode === "login" ? "Create operative" : "Back to login"}</button>
+
+          {authMessage && <p className="farm-auth-message">{authMessage}</p>}
+
+          <div className="farm-divider"><span>✿</span></div>
+
+          <button
+            className="link farm-auth-link"
+            onClick={() => {
+              setAuthMessage("");
+              setAuthMode(authMode === "login" ? "signup" : "login");
+            }}
+          >
+            {authMode === "login"
+              ? "New to the valley? Create your journal"
+              : "Already have a journal? Return to login"}
+          </button>
+
+          <div className="farm-save-note">
+            💾 Your quests and progress are saved to your account.
+          </div>
         </section>
       </main>
     );
@@ -845,7 +910,7 @@ export default function Home() {
 
           {view === "telemetry" && <section className="single-view"><div className="view-heading"><div><small>TELEMETRY FEED</small><h1>Performance Analytics</h1><p>Your latest seven-day output, recorded from completed directives.</p></div><button onClick={() => uid && loadData(uid)}><Activity/>REFRESH FEED</button></div><div className="telemetry-cards"><article className="metric panel"><Zap/><span>7-DAY XP</span><b>{weeklyXp}</b></article><article className="metric panel"><Coins/><span>7-DAY GOLD</span><b>{weeklyGold}</b></article><article className="metric panel"><CheckCircle2/><span>QUESTS CLEARED</span><b>{weeklyCompletions}</b></article><article className="metric panel"><Flame/><span>CURRENT STREAK</span><b>{profile?.streak ?? 0}</b></article></div><article className="activity-feed panel"><div className="feed-head"><small>RECENT COMBAT LOG</small><span>{activity.length} EVENTS</span></div>{activity.length ? activity.slice(0, 12).map(row => <div className="activity-row" key={row.id}><div className="activity-dot"/><div><b>DIRECTIVE VANQUISHED</b><span>{row.attribute?.toUpperCase() || "GENERAL"} // {new Date(row.created_at).toLocaleString()}</span></div><em>+{row.xp_earned} XP</em><strong>+{row.gold_earned} G</strong></div>) : <div className="feed-empty">NO TELEMETRY RECORDED YET</div>}</article></section>}
 
-          {view === "profile" && <section className="single-view"><div className="view-heading"><div><small>OPERATIVE PROFILE</small><h1>Neural Identity</h1><p>Manage your display identity, audio system and current interface configuration.</p></div><button onClick={() => supabase.auth.signOut()}><LogOut/>SIGN OUT</button></div><div className="profile-grid"><article className="profile-card panel"><div className="avatar-core"><Crown/></div><small>DISPLAY NAME</small><input value={displayName} onChange={event => setDisplayName(event.target.value)} maxLength={40}/><button onClick={saveProfile}><Save/>SAVE IDENTITY</button></article><article className="profile-card panel"><small>SYSTEM SETTINGS</small><div className="setting-row"><span><Volume2/>SOUND & AMBIENCE</span><button onClick={toggleSound}>{state?.sound_enabled ? "ENABLED" : "DISABLED"}</button></div><div className="setting-row"><span><Palette/>EQUIPPED THEME</span><b>{(state?.equipped_theme ?? "void").toUpperCase()}</b></div><div className="setting-row"><span><History/>ACCOUNT LEVEL</span><b>LVL {level.level}</b></div></article><article className="profile-card panel"><small>CAREER SUMMARY</small><div className="summary-grid"><span><b>{tasks.length}</b>TOTAL QUESTS</span><span><b>{clearedTasks.length}</b>VANQUISHED</span><span><b>{owned.length}</b>VAULT ITEMS</span><span><b>{profile?.total_xp ?? 0}</b>LIFETIME XP</span></div></article></div></section>}
+          {view === "profile" && <section className="single-view"><div className="view-heading"><div><small>OPERATIVE PROFILE</small><h1>Neural Identity</h1><p>Manage your display identity, audio system and current interface configuration.</p></div><button onClick={() => supabase.auth.signOut()}><LogOut/>SIGN OUT</button></div><div className="profile-grid"><article className="profile-card panel"><div className="avatar-core"><Crown/></div><small>DISPLAY NAME</small><input value={displayName} onChange={event => setDisplayName(event.target.value)} maxLength={40}/><button onClick={saveProfile}><Save/>SAVE IDENTITY</button></article><article className="profile-card panel"><small>SYSTEM SETTINGS</small><div className="setting-row"><span><Volume2/>SOUND & AMBIENCE</span><button onClick={toggleSound}>{state?.sound_enabled ? "ENABLED" : "DISABLED"}</button></div><div className="setting-row"><span><Palette/>EQUIPPED THEME</span><b>{(state?.equipped_theme ?? "farmstead").toUpperCase()}</b></div><div className="setting-row"><span><History/>ACCOUNT LEVEL</span><b>LVL {level.level}</b></div></article><article className="profile-card panel"><small>CAREER SUMMARY</small><div className="summary-grid"><span><b>{tasks.length}</b>TOTAL QUESTS</span><span><b>{clearedTasks.length}</b>VANQUISHED</span><span><b>{owned.length}</b>VAULT ITEMS</span><span><b>{profile?.total_xp ?? 0}</b>LIFETIME XP</span></div></article></div></section>}
         </div>
       </section>
     </main>
