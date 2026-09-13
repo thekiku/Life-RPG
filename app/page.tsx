@@ -126,6 +126,102 @@ const starterState: Omit<PlayerState, "user_id"> = {
   sound_enabled: true,
 };
 
+
+type ThemeBoss = {
+  label: string;
+  threat: string;
+  name: string;
+  defeatedName: string;
+  description: string;
+  glyph: string;
+  targetLabel: string;
+  hpLabel: string;
+  rewardToken: string;
+  strikeLabel: string;
+  defeatedLabel: string;
+};
+
+const themeBosses: Record<string, ThemeBoss> = {
+  farmstead: {
+    label: "FARMSTEAD BOUNTY BOSS",
+    threat: "HARVEST THREAT: DIRE",
+    name: "THE BLIGHTROOT SCARECROW",
+    defeatedName: "THE BLIGHTROOT HAS WITHERED",
+    description: "A cursed field guardian that grows stronger on abandoned plans and unfinished chores.",
+    glyph: "🌾",
+    targetLabel: "[BOUNTY POSTED] // EAST FIELD",
+    hpLabel: "BLIGHT VITALITY",
+    rewardToken: "HARVEST HEART",
+    strikeLabel: "SWING THE HARVEST BLADE",
+    defeatedLabel: "FIELD RESTORED",
+  },
+  retro: {
+    label: "ARCADE RAID BOSS",
+    threat: "ERROR LEVEL: 99",
+    name: "GLITCH KING 404",
+    defeatedName: "GLITCH KING // DELETED",
+    description: "A corrupted arcade tyrant spawning lag, distractions and infinite side quests.",
+    glyph: "👾",
+    targetLabel: "[PLAYER 1 READY] // FINAL STAGE",
+    hpLabel: "BOSS ENERGY",
+    rewardToken: "GLITCH CHIP",
+    strikeLabel: "INSERT COIN // ATTACK",
+    defeatedLabel: "STAGE CLEAR",
+  },
+  void: {
+    label: "WORLD CALAMITY BOSS",
+    threat: "THREAT LEVEL: EXTREME",
+    name: "THE PROCRASTINATION BEHEMOTH",
+    defeatedName: "THE BEHEMOTH HAS FALLEN",
+    description: "Apex Chrono-Parasite feeding on unfulfilled intentions and deferred tasks.",
+    glyph: "◈",
+    targetLabel: "[LOCK ON] // CALAMITY TARGET",
+    hpLabel: "NEMESIS INTEGRITY",
+    rewardToken: "CHRONO CORE",
+    strikeLabel: "EXECUTE BOSS STRIKE",
+    defeatedLabel: "NEMESIS NEUTRALIZED",
+  },
+  solar: {
+    label: "SOLAR FORGE TITAN",
+    threat: "CORE HEAT: CRITICAL",
+    name: "THE HELIOCORE DEVOURER",
+    defeatedName: "THE DEVOURER HAS COOLED",
+    description: "A star-forged colossus that burns through focus and turns momentum into ash.",
+    glyph: "☀️",
+    targetLabel: "[FORGE LOCK] // SOLAR TITAN",
+    hpLabel: "CORE STABILITY",
+    rewardToken: "SUNFORGE CORE",
+    strikeLabel: "OVERCHARGE SOLAR STRIKE",
+    defeatedLabel: "CORE STABILIZED",
+  },
+  arctic: {
+    label: "ARCTIC ANOMALY BOSS",
+    threat: "WHITEOUT LEVEL: OMEGA",
+    name: "THE FROSTFANG COLOSSUS",
+    defeatedName: "THE COLOSSUS HAS SHATTERED",
+    description: "An ancient ice titan that freezes routines, slows streaks and buries goals beneath snow.",
+    glyph: "❄️",
+    targetLabel: "[THERMAL LOCK] // ICE TITAN",
+    hpLabel: "FROST ARMOR",
+    rewardToken: "AURORA SHARD",
+    strikeLabel: "BREAK THE ICE",
+    defeatedLabel: "WHITEOUT CLEARED",
+  },
+  crimson: {
+    label: "CRIMSON WAR BOSS",
+    threat: "RAGE INDEX: MAXIMUM",
+    name: "THE BLOODFORGE WARLORD",
+    defeatedName: "THE WARLORD IS BROKEN",
+    description: "A relentless commander forged from burnout, chaos and every task left to become urgent.",
+    glyph: "🔥",
+    targetLabel: "[DUEL MARKED] // WARLORD",
+    hpLabel: "WARLORD VITALITY",
+    rewardToken: "CRIMSON SIGIL",
+    strikeLabel: "UNLEASH CRIMSON STRIKE",
+    defeatedLabel: "WARLORD DEFEATED",
+  },
+};
+
 const storeItems: StoreItem[] = [
   { key: "theme_void", name: "Void Protocol", desc: "Return to the original dark command theme.", price: 0, kind: "theme", glyph: "◌", rarity: "COMMON", accent: "violet", theme: "void" },
   { key: "theme_retro", name: "Retro Terminal", desc: "FREE theme: pixel-style CRT terminal interface with scanlines and arcade-era styling.", price: 0, kind: "theme", glyph: "▦", rarity: "COMMON", accent: "green", theme: "retro" },
@@ -242,6 +338,8 @@ export default function Home() {
   const bossDamage = Math.min(100, completedThisWeek * 20 + bonusDamage);
   const bossHp = 100 - bossDamage;
   const bossClaimed = state?.boss_claimed_week === currentWeek;
+  const currentTheme = state?.equipped_theme ?? "farmstead";
+  const currentBoss = themeBosses[currentTheme] ?? themeBosses.void;
   const todayClears = tasks.filter(task => task.completed && isToday(task.completed_at)).length;
   const raidReady = todayClears >= 3;
   const raidClaimed = state?.raid_claim_date === localDateString();
@@ -308,9 +406,8 @@ export default function Home() {
     if (kind === "raid") { tone(220, 0, 0.1, "square", 0.03); tone(440, 0.08, 0.12, "square", 0.04); tone(880, 0.18, 0.2, "triangle", 0.05); }
   }
 
-  function startAmbient(force: boolean | unknown = false) {
-    const isForce = typeof force === "boolean" ? force : false;
-    if (!isForce && !state?.sound_enabled) return;
+  function startAmbient(force = false) {
+    if (!force && !state?.sound_enabled) return;
     const ctx = getAudioContext();
     if (!ctx || ambientOsc.current) return;
     if (ctx.state === "suspended") void ctx.resume();
@@ -888,11 +985,39 @@ export default function Home() {
             </aside>
 
             <section className="content-column">
-              <article className={`boss panel ${bossHit ? "boss-hit" : ""}`}>
-                <div className="boss-title"><div><span>WORLD CALAMITY BOSS</span><em>THREAT LEVEL: EXTREME</em></div><h1>{bossHp === 0 ? "THE BEHEMOTH HAS FALLEN" : "THE PROCRASTINATION BEHEMOTH"}</h1><p>{bossHp === 0 ? "Calamity neutralized for this weekly cycle." : "Apex Chrono-Parasite feeding on unfulfilled intentions & deferred tasks"}</p></div>
-                <div className="boss-body"><div className="boss-visual"><div className="monster"><Sword/></div><small>[LOCK ON] // CALAMITY TARGET</small></div><div className="boss-health"><span>NEMESIS INTEGRITY (HP)</span><h2>{bossHp * 1200} / 120,000 <small>HP ({bossHp}%)</small></h2><i><em style={{ width: `${bossHp}%` }}/></i><div className="boss-stats"><span><small>QUEST HITS</small><b>{completedThisWeek}</b></span><span><small>BONUS DAMAGE</small><b>{bonusDamage}%</b></span><span><small>REWARD STATUS</small><b>{bossClaimed ? "CLAIMED" : "300 G"}</b></span></div></div></div>
-                <div className="boss-spoils"><span>CALAMITY SPOILS:</span><b><Coins/>300 G</b><b>◉ CHRONO CORE</b><b><Trophy/>WEEKLY CLEAR</b></div>
-                <button className="boss-strike" disabled={bossHp === 0} onClick={executeBossStrike}><Target/>{bossHp === 0 ? "NEMESIS NEUTRALIZED" : "EXECUTE BOSS STRIKE (-150 G)"}</button>
+              <article className={`boss panel theme-boss-${currentTheme} ${bossHit ? "boss-hit" : ""}`}>
+                <div className="boss-title">
+                  <div><span>{currentBoss.label}</span><em>{currentBoss.threat}</em></div>
+                  <h1>{bossHp === 0 ? currentBoss.defeatedName : currentBoss.name}</h1>
+                  <p>{bossHp === 0 ? `${currentBoss.defeatedLabel} for this weekly cycle.` : currentBoss.description}</p>
+                </div>
+                <div className="boss-body">
+                  <div className="boss-visual">
+                    <div className="monster boss-monster" aria-label={currentBoss.name}>
+                      <span className="boss-glyph" aria-hidden="true">{currentBoss.glyph}</span>
+                    </div>
+                    <small>{currentBoss.targetLabel}</small>
+                  </div>
+                  <div className="boss-health">
+                    <span>{currentBoss.hpLabel} (HP)</span>
+                    <h2>{bossHp * 1200} / 120,000 <small>HP ({bossHp}%)</small></h2>
+                    <i><em style={{ width: `${bossHp}%` }}/></i>
+                    <div className="boss-stats">
+                      <span><small>QUEST HITS</small><b>{completedThisWeek}</b></span>
+                      <span><small>BONUS DAMAGE</small><b>{bonusDamage}%</b></span>
+                      <span><small>REWARD STATUS</small><b>{bossClaimed ? "CLAIMED" : "300 G"}</b></span>
+                    </div>
+                  </div>
+                </div>
+                <div className="boss-spoils">
+                  <span>BOSS SPOILS:</span>
+                  <b><Coins/>300 G</b>
+                  <b>◉ {currentBoss.rewardToken}</b>
+                  <b><Trophy/>WEEKLY CLEAR</b>
+                </div>
+                <button className="boss-strike" disabled={bossHp === 0} onClick={executeBossStrike}>
+                  <Target/>{bossHp === 0 ? currentBoss.defeatedLabel : `${currentBoss.strikeLabel} (-150 G)`}
+                </button>
               </article>
 
               <section className="directive-tabs"><button className={filter === "active" ? "active" : ""} onClick={() => setFilter("active")}>ACTIVE DIRECTIVES ({activeTasks.length})</button><button className={filter === "cleared" ? "active" : ""} onClick={() => setFilter("cleared")}>VANQUISHED ({clearedTasks.length})</button><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>ALL DIRECTIVES ({tasks.length})</button></section>
