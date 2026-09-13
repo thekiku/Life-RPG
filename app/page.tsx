@@ -843,7 +843,7 @@ export default function Home() {
         <section className="auth-left farm-auth-left">
           <div className="auth-brand farm-auth-brand">
             <div className="farm-logo" aria-hidden="true">🌱</div>
-            <span><small>COZY LIFE RPG</small><b>LIFE RPG</b></span>
+            <span><small>COZY LIFE RPG</small><b>ASCEND</b></span>
           </div>
 
           <div className="farm-hero-copy">
@@ -945,7 +945,7 @@ export default function Home() {
       {levelOverlay && <div className="level-overlay"><div className="level-ring-big"><Star/><span>LEVEL UP</span><b>{levelOverlay}</b><small>VANGUARD STATUS INCREASED</small></div></div>}
 
       <aside className={`sidebar ${mobileNav ? "open" : ""}`}>
-        <div className="side-brand"><Hexagon/><span><small>LIFE RPG</small><b>ORBIT</b></span></div>
+        <div className="side-brand"><Hexagon/><span><small>LIFE RPG</small><b>ASCEND</b></span></div>
         <div className="operative"><small>OPERATIVE SPEC</small><b>CYBERNETICIST</b><span>Neural Load <em>42% OK</em></span></div>
         <nav>{nav.map(item => {
           const Icon = item.icon;
