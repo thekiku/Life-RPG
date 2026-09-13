@@ -1,57 +1,67 @@
-# Life RPG
+# Ascend (Life RPG)
 
-A full-stack gamified productivity app that turns real-life tasks into quests.
+Ascend is a gamified productivity web application built with Next.js and Supabase. It turns daily tasks and goals into RPG quests, granting experience points, gold, level progression, and stat attribute upgrades upon completion.
 
 ## Features
-- Email/password authentication with Supabase
-- Persistent PostgreSQL database
-- Row Level Security so users can only access their own data
-- Quest CRUD
-- Non-linear XP leveling
-- Difficulty-based XP/gold rewards
-- Character attributes: Intellect, Strength, Discipline, Creativity
-- Reward-vault preview
-- Activity logging
-- Responsive, keyboard-friendly interface
-- Optimistic UI for fast interactions
 
-## Tech stack
-- Next.js + React + TypeScript
-- Supabase Auth + PostgreSQL
-- Custom CSS
-- Lucide icons
+- User Authentication: Secure signup and login using Supabase Auth.
+- Quest System: Create, track, filter, and complete tasks categorized by difficulty (Easy, Medium, Hard) and attributes.
+- Character Attributes: Dynamic stat tracking across Intellect, Strength, Discipline, and Creativity.
+- Level & XP Engine: Non-linear leveling progression curve calculated dynamically from earned XP.
+- Bazaar & Shop: Purchase XP boost elixirs, gold magnets, streak shields, permanent attribute tomes, and interface themes (Void, Retro Terminal, Cozy Farmstead, Solar, Arctic, Crimson).
+- Boss Nemesis & Raids: Weekly raid challenges with direct strike damage mechanics and reward caches.
+- Telemetry & Activity Feed: History log tracking earned XP, gold, and stat increases over time.
+- Immersive Audio & Theme Engine: Built-in synth audio effects and custom UI themes.
+- Data Security: PostgreSQL Row Level Security (RLS) ensuring each user's data remains isolated.
 
-## Setup
+## Tech Stack
 
-1. Create a Supabase project.
-2. Open Supabase SQL Editor and run `supabase/schema.sql`.
-3. Copy `.env.example` to `.env.local`.
-4. Add your Supabase project URL and anon key.
-5. Install and run:
+- Framework: Next.js 15 (App Router, React 19, TypeScript)
+- Database & Auth: Supabase (PostgreSQL, Supabase Auth, Row Level Security)
+- Icons: Lucide React
+- Deployment: Vercel
+
+## Environment Variables
+
+Create a `.env.local` file in the project root with the following keys:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+```
+
+## Database Setup
+
+1. Open your Supabase project dashboard.
+2. Go to the SQL Editor.
+3. Run `supabase/schema.sql` to initialize tables, functions, triggers, and RLS policies.
+4. Run `supabase/final_migration.sql` to ensure all columns and table relationships are up to date.
+
+## Local Development
+
+Install dependencies and start the local development server:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open http://localhost:3000 in your browser.
 
-## Deploy
-Deploy the repository to Vercel and add the same environment variables in Vercel project settings.
+## Deployment
 
-## Suggested demo flow (90–180 seconds)
-1. Show signup/login.
-2. Add a new quest.
-3. Complete it.
-4. Show XP/gold/attribute increase.
-5. Refresh the page to prove persistence.
-6. Show responsive/mobile layout.
-7. Sign out and sign back in.
+This repository is ready to deploy directly to Vercel.
 
-## Submission checklist
-- Public GitHub repository
-- At least 3 chronological commits
-- `.env.example` included
-- Live deployed URL works
-- Walkthrough video under 100 MB and 90–180 seconds
-- No private secrets committed
+1. Push your code to GitHub.
+2. Import the repository into Vercel as a Next.js project.
+3. Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in Project Settings > Environment Variables.
+4. Deploy.
+
+## Demo Walkthrough
+
+1. Register or sign in to an account.
+2. Add a new task with an assigned attribute and difficulty level.
+3. Complete the task to trigger XP, gold gains, and level-up audio-visual feedback.
+4. Visit the Bazaar to purchase consumable boosts or unlock custom themes.
+5. Inspect the Telemetry feed to verify historical log entries and persistent state across page reloads.
+
