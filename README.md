@@ -50,13 +50,8 @@ Open http://localhost:3000 in your browser.
 
 ## Deployment
 
-This repository is ready to deploy directly to Vercel.
-
-1. Push your code to GitHub.
-2. Import the repository into Vercel as a Next.js project.
-3. Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in Project Settings > Environment Variables.
-4. Deploy.
-
+This repository is deployed on vercel.
+https://ascend-nine-chi.vercel.app/
 ## Demo Walkthrough
 
 1. Register or sign in to an account.
